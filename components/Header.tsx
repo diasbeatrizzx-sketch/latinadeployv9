@@ -10,20 +10,17 @@ import LanguageSelector from './LanguageSelector';
 
 const nav = {
   pt: [
-    { label: 'Menu', href: '/menu' },
     { label: 'Reservas', href: '/reservations' },
-    { label: 'Contacto', href: '/contact' },
+    { label: 'Contacto', href: '/contact' }
   ],
   en: [
-    { label: 'Menu', href: '/menu' },
     { label: 'Reservations', href: '/reservations' },
-    { label: 'Contact', href: '/contact' },
+    { label: 'Contact', href: '/contact' }
   ],
   fr: [
-    { label: 'Menu', href: '/menu' },
     { label: 'Réservations', href: '/reservations' },
-    { label: 'Contact', href: '/contact' },
-  ],
+    { label: 'Contact', href: '/contact' }
+  ]
 };
 
 const menuPdfLabel = { pt: 'Ver Menu', en: 'Open Menu', fr: 'Voir le Menu' };
@@ -47,6 +44,22 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [locale]);
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   const navItems = nav[locale as keyof typeof nav] || nav.pt;
   const pdfLabel = menuPdfLabel[locale as keyof typeof menuPdfLabel] || menuPdfLabel.pt;
   const ctaLabel = reserveLabel[locale as keyof typeof reserveLabel] || reserveLabel.pt;
@@ -54,128 +67,135 @@ export default function Header() {
   return (
     <motion.header
       style={{ backgroundColor: headerBg }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled ? 'shadow-2xl border-b border-white/5' : ''
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+        scrolled ? 'border-b border-white/5 shadow-2xl backdrop-blur-xl' : ''
       }`}
     >
       <div className="container mx-auto px-4 lg:px-8">
-        <div className="flex items-center justify-between h-20 lg:h-24">
-          {/* Logo */}
-          <Link href={`/${locale}`} className="relative z-50 group">
+        <div className="flex h-20 items-center justify-between lg:h-24">
+          <Link href={`/${locale}`} className="relative z-[60] group">
             <div className="flex items-center gap-3">
               <motion.div
-                whileHover={{ scale: 1.05, rotate: 5 }}
-                transition={{ duration: 0.3 }}
-                className="relative w-12 h-12 lg:w-14 lg:h-14"
+                whileHover={{ scale: 1.04, rotate: 4 }}
+                transition={{ duration: 0.28 }}
+                className="relative h-12 w-12 lg:h-14 lg:w-14"
               >
                 <Image
                   src="/logo.png"
                   alt="Latina Grill"
                   fill
-                  className="object-contain drop-shadow-[0_0_20px_rgba(220,38,38,0.5)]"
+                  className="object-contain drop-shadow-[0_0_20px_rgba(220,38,38,0.42)]"
+                  priority
                 />
               </motion.div>
-              <span className="text-white text-xl lg:text-2xl font-serif font-bold tracking-tight">
+
+              <span className="font-serif text-xl font-bold tracking-tight text-white lg:text-2xl">
                 Latina Grill
               </span>
             </div>
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-8 xl:gap-10">
-            {navItems.map((item, index) => (
+          <nav className="hidden items-center gap-8 lg:flex xl:gap-10">
+            {navItems.map((item) => (
               <Link
-                key={index}
+                key={item.href}
                 href={`/${locale}${item.href}`}
-                className="text-white/70 hover:text-white text-sm uppercase tracking-[0.2em] font-medium transition-colors relative group"
+                className="group relative text-sm font-medium uppercase tracking-[0.2em] text-white/72 transition-colors hover:text-white"
               >
                 {item.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-px bg-red group-hover:w-full transition-all duration-300" />
+                <span className="absolute -bottom-1 left-0 h-px w-0 bg-red-500 transition-all duration-300 group-hover:w-full" />
               </Link>
             ))}
 
-            {/* PDF Menu Link */}
             <a
               href="/latina-grill-menu.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-white/55 hover:text-white/90 text-sm uppercase tracking-[0.18em] font-medium transition-colors duration-200 group relative"
+              className="group relative inline-flex items-center gap-2 text-sm font-medium uppercase tracking-[0.18em] text-white/60 transition-colors duration-200 hover:text-white"
               aria-label={pdfLabel}
             >
-              <FileText className="w-3.5 h-3.5 text-white/35 group-hover:text-white/70 transition-colors" />
+              <FileText className="h-3.5 w-3.5 text-white/35 transition-colors group-hover:text-white/70" />
               <span>{pdfLabel}</span>
-              <span className="absolute -bottom-1 left-0 w-0 h-px bg-white/30 group-hover:w-full transition-all duration-300" />
+              <span className="absolute -bottom-1 left-0 h-px w-0 bg-white/30 transition-all duration-300 group-hover:w-full" />
             </a>
 
-            {/* Language selector */}
-            <div className="w-px h-4 bg-white/15 mx-1" />
+            <div className="mx-1 h-4 w-px bg-white/15" />
+
             <LanguageSelector />
 
-            {/* CTA */}
             <a
               href="tel:+351968707515"
-              className="flex items-center gap-2 border border-red hover:bg-red text-white px-6 py-3 text-sm font-semibold uppercase tracking-wider transition-all duration-300"
+              className="inline-flex items-center gap-2 border border-red-500 bg-red-500 px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-white transition-all duration-300 hover:border-red-400 hover:bg-red-600 hover:shadow-[0_12px_30px_rgba(180,20,20,0.28)]"
             >
-              <Phone className="w-4 h-4" />
+              <Phone className="h-4 w-4" />
               {ctaLabel}
             </a>
           </nav>
 
-          {/* Mobile: language selector + hamburger */}
-          <div className="lg:hidden flex items-center gap-3">
+          <div className="flex items-center gap-3 lg:hidden">
             <LanguageSelector />
+
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-white p-2"
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              className="relative z-[60] rounded-full border border-white/10 bg-white/5 p-2 text-white transition-colors hover:bg-white/10"
               aria-label="Toggle menu"
+              aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+              {mobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="lg:hidden bg-black/98 border-t border-white/10"
-        >
-          <nav className="container mx-auto px-4 py-8 flex flex-col gap-5">
-            {navItems.map((item, index) => (
-              <Link
-                key={index}
-                href={`/${locale}${item.href}`}
+        <>
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            onClick={() => setMobileMenuOpen(false)}
+            className="fixed inset-0 z-40 bg-black/72 backdrop-blur-sm lg:hidden"
+            aria-label="Close menu overlay"
+          />
+
+          <motion.div
+            initial={{ opacity: 0, y: -18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.28, ease: 'easeOut' }}
+            className="absolute inset-x-0 top-full z-50 border-t border-white/10 bg-black/95 shadow-[0_20px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl lg:hidden"
+          >
+            <nav className="container mx-auto flex flex-col gap-5 px-4 py-8">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={`/${locale}${item.href}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="border-b border-white/5 py-1 text-lg font-medium uppercase tracking-[0.16em] text-white"
+                >
+                  {item.label}
+                </Link>
+              ))}
+
+              <a
+                href="/latina-grill-menu.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-white text-lg uppercase tracking-wider font-medium py-1 border-b border-white/5"
+                className="flex items-center gap-2 border-b border-white/5 py-1 text-lg font-medium uppercase tracking-[0.16em] text-white/78"
               >
-                {item.label}
-              </Link>
-            ))}
+                <FileText className="h-5 w-5 text-white/45" />
+                {pdfLabel}
+              </a>
 
-            {/* PDF link mobile */}
-            <a
-              href="/latina-grill-menu.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 text-white/70 text-lg uppercase tracking-wider font-medium py-1 border-b border-white/5"
-            >
-              <FileText className="w-5 h-5 text-white/40" />
-              {pdfLabel}
-            </a>
-
-            <a
-              href="tel:+351968707515"
-              className="flex items-center justify-center gap-2 border-2 border-red bg-red text-white px-8 py-4 text-sm font-semibold uppercase tracking-wider mt-2"
-            >
-              <Phone className="w-4 h-4" />
-              {ctaLabel}
-            </a>
-          </nav>
-        </motion.div>
+              <a
+                href="tel:+351968707515"
+                className="mt-2 flex items-center justify-center gap-2 border border-red-500 bg-red-500 px-8 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-white"
+              >
+                <Phone className="h-4 w-4" />
+                {ctaLabel}
+              </a>
+            </nav>
+          </motion.div>
+        </>
       )}
     </motion.header>
   );
